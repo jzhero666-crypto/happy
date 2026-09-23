@@ -3,11 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZML Suno Prompt Studio v7.1 - Taiwanese Hokkien Lock × Style DNA × Taiwan Culture</title>
+  <title>ZML Suno Prompt Studio v7.2 Public Beta｜Style DNA × Smart Exclude × Taiwan Culture</title>
+  <meta name="description" content="免費的 Suno 音樂風格、編曲 META 與智慧 Exclude 提示詞工具。繁體中文介面、英文輸出，包含 Style DNA、全球曲風、台語、戲曲、臺灣文化與全球樂器庫。">
+  <meta property="og:title" content="ZML Suno Prompt Studio v7.2 Public Beta">
+  <meta property="og:description" content="繁中操作、英文輸出：Style DNA、Style ↔ Lyrics META、Smart Exclude、台語硬鎖、全球曲風與樂器資料庫。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jzhero666-crypto.github.io/happy/">
+  <link rel="canonical" href="https://jzhero666-crypto.github.io/happy/">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
+    if (window.tailwind) window.tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
@@ -103,7 +109,8 @@
         <div>
           <span class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
             <span class="font-extrabold tracking-wider bg-gradient-to-r from-amber-400 via-rose-500 to-orange-500 bg-clip-text text-transparent text-xl sm:text-2xl drop-shadow">ZML</span>
-            <span class="gradient-text font-bold">Suno Prompt Studio v7.1</span>
+            <span class="gradient-text font-bold">Suno Prompt Studio v7.2</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/45 text-emerald-300 border border-emerald-700/35 tracking-wide">PUBLIC BETA</span>
             <span class="text-[11px] px-2 py-0.5 rounded-full bg-[#191e2c] text-[#ff6a3d] border border-[#ff6a3d]/30 font-medium font-mono" id="totalTagsCounter">載入資料中...</span>
           </span>
         </div>
@@ -122,6 +129,7 @@
           <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           <span>全庫隨機抽</span>
         </button>
+        <button onclick="openHelpModal()" class="px-3 py-1.5 rounded-lg bg-[#141620] hover:bg-[#1c202e] border border-[#222738] text-gray-300 hover:text-white transition" title="第一次使用？快速看懂 Style、META、DNA 與 Smart Exclude">📖 <span class="hidden sm:inline">使用說明</span></button>
         <button onclick="clearAllPromptData()" class="px-3 py-1.5 rounded-lg bg-[#141620] hover:bg-rose-950/40 border border-[#222738] hover:border-rose-800/50 text-gray-400 hover:text-rose-300 transition">
           清空全部
         </button>
@@ -135,7 +143,7 @@
     <div class="mb-5 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#11131b] p-4 rounded-xl border border-[#1e2335]">
       <div class="text-xs sm:text-sm text-gray-300 leading-relaxed">
         <span class="text-white font-semibold">🎵 終極全流派巨量庫（專業繁體中文標籤 + 標準英文提示詞輸出）：</span>
-        介面以繁體中文理解標籤，輸出維持英文；V7.1 新增台語硬鎖規則：只要偵測到臺灣台語／Taiwanese Taigi／Taiwanese Hokkien／歌仔戲台語情境，Style 必定包含 Taiwanese Hokkien，Lyrics 每個歌曲段落結構 META 後必定加入 [Taiwanese Hokkien accent vocal]。原 V7 的 Style DNA 保留比例、臺灣聲音文化庫與 Global Instrument Lab 繼續保留：鎖定主風格後，可控制變異幅度；臺灣台語腔口、歌仔戲／京劇等戲曲聲腔、北管／南管／客家八音、原住民族樂器與特殊樂器皆以情境守門接入 Style → Lyrics META。臺灣文化資料依政府／傳統藝術公開資料校對；🧪 標記則代表創作者實測的 Suno 觸發寫法，與正式樂器學名稱分開保存。
+        <b>Public Beta：</b>介面以繁體中文理解標籤，輸出維持英文。V7.2 新增「曲風資料分級」與 Smart Exclude：Established／Scene／Microgenre／Regional descriptor／🧩 Modifier／🧪 Suno-tested alias 分開管理；負面提示不再亂抽，而是依當前 Style＋Lyrics META 動態避開真正衝突。台語硬鎖仍保留：偵測臺灣台語／Taiwanese Hokkien／歌仔戲台語情境時，Style 強制包含 Taiwanese Hokkien，人聲歌詞段落固定加入 [Taiwanese Hokkien accent vocal]。Style DNA、臺灣文化守門與 Global Instrument Lab 全部保留。
       </div>
       <div class="flex items-center gap-2 self-start md:self-auto shrink-0">
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-[#161a26] text-gray-300 border border-[#262c3e]">
@@ -279,14 +287,14 @@
             </label>
             <span id="excludeCount" class="text-[11px] font-mono text-gray-500">0/1000</span>
           </div>
-          <p class="text-[11px] text-gray-400 mb-2">排除不希望出現的低畫質、念白或特定雜音</p>
+          <p class="text-[11px] text-gray-400 mb-2">🛡️ Smart Exclude 會依目前 Style、人聲、樂器與 Lyrics META 自動排除真正衝突；不是把正面 Prompt 機械式寫成反義詞。</p>
           <textarea id="excludeInput" rows="4" 
             placeholder="e.g. spoken word, podcast, narration, distortion, screaming, noise..." 
             class="w-full bg-[#0b0d13] border border-[#1f2436] focus:border-rose-500 focus:ring-1 focus:ring-rose-500 rounded-lg p-2.5 text-xs sm:text-sm text-gray-200 placeholder-gray-600 outline-none resize-y transition"></textarea>
         </div>
         <div class="flex items-center justify-between mt-3 pt-2 border-t border-[#181b26]">
-          <button onclick="elaborateExclude()" class="text-xs px-2.5 py-1.5 rounded-md bg-[#161a26] hover:bg-[#202536] text-rose-300 font-medium transition flex items-center gap-1">
-            ✦ 常見乾淨排除組
+          <button onclick="refreshSmartExclude()" class="text-xs px-2.5 py-1.5 rounded-md bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 font-semibold transition flex items-center gap-1 border border-rose-800/35" title="依目前 Style + Lyrics META 重新計算負面提示詞">
+            🛡️ 依 Style + META 重建
           </button>
           <div class="flex items-center gap-1.5">
             <button onclick="copyElementText('excludeInput')" class="text-xs px-2.5 py-1.5 rounded-md bg-[#161a26] hover:bg-[#202536] text-gray-300 transition">複製</button>
@@ -391,6 +399,11 @@
       </div>
     </div>
 
+    <div class="mt-5 mb-2 px-4 py-3 rounded-xl border border-[#1e2335] bg-[#0e1119] text-[11px] text-gray-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.2 · Public Beta</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。</span>
+      <span>🔒 純前端版本：收藏、DNA 與輪抽進度只儲存在你的瀏覽器 localStorage，不會上傳到 ZML 伺服器。</span>
+    </div>
+
   </main>
 
   <!-- V7 Core Style Variation Lab Modal -->
@@ -488,6 +501,28 @@
           <button onclick="generateCoreLockedVariation()" class="px-4 py-2 rounded-lg btn-gradient text-white text-xs font-bold">🧬 鎖定核心並生成</button>
         </div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- Public Beta Help Modal -->
+  <div id="helpModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="bg-[#121520] border border-[#2a3045] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl m-4 overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#22283a] flex items-center justify-between">
+        <div><h3 class="text-base font-bold text-white">📖 ZML Suno Prompt Studio｜快速使用說明</h3><p class="text-[11px] text-gray-400 mt-1">第一次用不用研究全部功能，先照 ①→④ 就能開始。</p></div>
+        <button onclick="closeHelpModal()" class="text-gray-400 hover:text-white text-xl p-1">✕</button>
+      </div>
+      <div class="overflow-y-auto p-5 space-y-4 text-xs text-gray-300 leading-relaxed">
+        <section class="p-3 rounded-xl bg-[#171a26] border border-[#252b3e]"><b class="text-white">① 選 Style 標籤</b><br>從曲風、人聲、BPM、樂器、情緒、地區文化等分類點選。介面顯示繁中，真正輸出給 Suno 的內容維持英文。</section>
+        <section class="p-3 rounded-xl bg-[#171a26] border border-[#252b3e]"><b class="text-white">② 沒靈感：全庫隨機抽</b><br>一次建立 Style、同源 Lyrics META 與 Smart Exclude。文化情境標籤不會為了輪抽公平而無條件亂塞。</section>
+        <section class="p-3 rounded-xl bg-[#171a26] border border-[#252b3e]"><b class="text-white">③ 有固定曲風：核心風格變奏</b><br>鎖定 R&B、Rock、Mandopop 等，再用 DNA 滑桿決定保留比例。DNA 越高越接近母風格；越低越容易出現跨界曲風與特色樂器。</section>
+        <section class="p-3 rounded-xl bg-[#171a26] border border-[#252b3e]"><b class="text-white">④ Lyrics META</b><br>按「🎼 依 Style 生成 META」，網站會依同一份風格安排 [Intro]、[Verse]、[Chorus]、[Bridge]、[Outro] 與合理的演奏／人聲提示，再把自己的歌詞填入各段即可。</section>
+        <section class="p-3 rounded-xl bg-rose-950/15 border border-rose-900/30"><b class="text-rose-200">🛡️ Smart Exclude</b><br>負面提示會從正面 Style 與 META 推導，排除最可能把作品帶歪的元素。它不是越多越好，因此只保留高價值衝突項。若你手動修改 Style，可按「依 Style + META 重建」。</section>
+        <section class="p-3 rounded-xl bg-emerald-950/15 border border-emerald-900/30"><b class="text-emerald-200">🇹🇼 台語模式</b><br>選到臺灣台語／Hokkien Pop／歌仔戲台語情境時，Style 固定加入 <code>Taiwanese Hokkien</code>；每個有人聲的歌詞段落固定加入 <code>[Taiwanese Hokkien accent vocal]</code>。純器樂段落不加，避免 Vocal / Instrumental 衝突。</section>
+        <section class="p-3 rounded-xl bg-amber-950/15 border border-amber-900/30"><b class="text-amber-200">資料標籤怎麼看？</b><br>✅ Established＝已有穩定使用的曲風／類型；🎬 Scene＝場景或社群名稱；🌀 Microgenre＝微流派；🌍 Regional descriptor＝地區描述；🧩 Modifier / Practice＝輔助描述或實驗創作方法；🧪 Suno-tested＝創作者實測有效寫法，不代表正式音樂學名稱或 Suno 官方固定 Tag。</section>
+        <p class="text-[11px] text-gray-500">提醒：Prompt 能提高方向一致性，但不能保證每次生成百分之百遵從。相同設定多生成幾個版本仍是 AI 音樂創作的重要流程。</p>
+      </div>
+      <div class="px-5 py-4 border-t border-[#22283a] flex justify-end"><button onclick="closeHelpModal()" class="px-4 py-2 rounded-lg btn-gradient text-white text-xs font-bold">開始使用</button></div>
     </div>
   </div>
 
@@ -1086,6 +1121,53 @@
       }
     ];
 
+    // ===== V7.2 VERIFIED / CURATED GENRE GAP PATCH =====
+    // 新增項只收：有來源支持的成熟曲風、場景名或微流派。
+    // 不把「看起來像 Genre 的自然語言句子」冒充正式曲風。
+    const V72_CURATED_EXPANSIONS = {
+      "electronic-dance": ["ambient house","ambient techno","ambient trance","acid trance","progressive breaks","forest psytrance","hi-tech psytrance","darksynth","future rave","leftfield bass","tearout","hardwave","hardgroove techno","deconstructed club","wave","weightless","lo-fi house","dub techno","autonomic","splittercore","extratone","frenchcore","makina"],
+      "hip-hop-rnb": ["jersey drill","abstract hip hop","experimental hip hop","afro trap","trap latino","G-funk","chicago bop","hexd","jersey club rap"],
+      "rock-metal-punk": ["celtic metal","melodic hardcore","swancore","thall","electronicore","goregrind","gorenoise","deathgrind","cybergrind","nintendocore","skramz","emoviolence","ethereal wave"],
+      "rock-punk-subgenres": ["midwest emo","slowcore","sadcore","art punk"],
+      "rnb-soul-funk-heritage": ["northern soul","minneapolis sound"],
+      "folk-country-blues": ["newgrass","progressive bluegrass"],
+      "pop-indie": ["yacht rock"],
+      "club-internet": ["stutter house"],
+      "internet-experimental": ["barber beats","dreampunk","bubblegum bass","dungeon synth","winter synth","harsh noise wall","musique concrète instrumentale","vapornoise","acousmatic","electroacoustic","EAI","microsound","sound collage"] ,
+      "regional-pop-east-se-asia": ["Taiwanese hip hop","luk thung"],
+      "regional-pop-africa": ["singeli"]
+    };
+    rawCategoryData.forEach(cat => {
+      if (V72_CURATED_EXPANSIONS[cat.id]) cat.tags.push(...V72_CURATED_EXPANSIONS[cat.id]);
+    });
+
+    rawCategoryData.push(
+      {
+        id: "chinese-guofeng-established",
+        name: "Chinese Style｜中國風・古風・國風・國潮",
+        icon: "🏮",
+        desc: "只收有實際使用依據的名稱。Zhongguo feng／Gufeng music 可作曲風或場景；Guofeng／Guochao 定義較寬，標示為 contemporary scene / hybrid，不冒充固定聲音公式。",
+        target: "style",
+        tags: ["Zhongguo feng","Gufeng music","Guofeng music","Guochao music"]
+      },
+      {
+        id: "chinese-narrative-modifiers",
+        name: "Chinese Narrative Modifiers｜武俠・仙俠・江湖敘事修飾",
+        icon: "⚔️",
+        desc: "🧩 Modifier：這些是自然語言 Prompt Descriptor，不是正式 Genre。用來讓 R&B、Trap、Rock、Electronic、Guofeng 等核心曲風取得武俠／仙俠／古裝敘事與五聲音階方向。",
+        target: "style",
+        tags: ["wuxia-inspired","xianxia-inspired","jianghu atmosphere","ancient Chinese fantasy","Chinese historical drama soundtrack","martial arts cinematic","pentatonic melodic phrasing"]
+      },
+      {
+        id: "japan-modern-scenes",
+        name: "Japan Modern Scenes｜日本現代場景與微流派",
+        icon: "🗾",
+        desc: "日本流行／重型音樂的已建立場景名稱；Harajuku-core 保留其社群／樂團自稱脈絡，不宣稱為傳統大類。",
+        target: "style",
+        tags: ["visual kei","Harajuku-core","denpa","kankyō ongaku","onkyo","j-core"]
+      }
+    );
+
     const presetsData = [
       {
         title: "前衛金屬狂潮 (Modern Progressive Metal)",
@@ -1456,6 +1538,104 @@
       return '';
     }
 
+    // ===== V7.2 新增曲風繁中與資料身份 =====
+    const v72TagZh = {
+      "ambient house":"氛圍浩室", "ambient techno":"氛圍科技舞曲", "ambient trance":"氛圍出神", "acid trance":"迷幻酸性出神",
+      "progressive breaks":"漸進碎拍", "forest psytrance":"森林迷幻出神", "hi-tech psytrance":"高速高科技迷幻出神", "darksynth":"暗黑合成器浪潮",
+      "future rave":"未來銳舞", "leftfield bass":"左場低音實驗", "tearout":"撕裂型 Dubstep／Bass", "hardwave":"硬派 Wave", "hardgroove techno":"硬律動科技舞曲", "deconstructed club":"解構俱樂部",
+      "jersey drill":"紐澤西鑽頭", "abstract hip hop":"抽象嘻哈", "experimental hip hop":"實驗嘻哈", "afro trap":"非洲陷阱", "trap latino":"拉丁陷阱", "g-funk":"G-Funk 西岸放克嘻哈", "chicago bop":"芝加哥 Bop",
+      "celtic metal":"凱爾特金屬", "melodic hardcore":"旋律硬核", "swancore":"Swancore 場景後硬核", "thall":"Thall 極低調重型微流派", "electronicore":"電子核／Electronicore",
+      "midwest emo":"中西部 Emo", "slowcore":"慢核", "sadcore":"悲核／Sadcore", "art punk":"藝術龐克", "northern soul":"北方靈魂樂", "minneapolis sound":"明尼亞波利斯之聲",
+      "newgrass":"新草根藍草", "progressive bluegrass":"漸進藍草", "yacht rock":"遊艇搖滾／Yacht Rock", "stutter house":"卡頓浩室", "barber beats":"Barber Beats 網路微流派", "dreampunk":"夢境龐克／Dreampunk", "bubblegum bass":"泡泡糖低音",
+      "zhongguo feng":"中國風（Zhongguo feng）", "gufeng music":"古風音樂（Gufeng）", "guofeng music":"國風音樂（Guofeng）", "guochao music":"國潮音樂／國潮融合場景",
+      "visual kei":"視覺系（Visual Kei）", "harajuku-core":"原宿核／Harajuku-core", "denpa":"電波系／Denpa",
+      "hexd":"Hexd 暗黑網路嘻哈微流派", "jersey club rap":"Jersey Club Rap 場景", "taiwanese hip hop":"臺灣嘻哈", "luk thung":"泰國 Luk Thung 鄉村流行", "singeli":"坦尚尼亞 Singeli 高速舞曲",
+      "dungeon synth":"地城合成器／Dungeon Synth", "winter synth":"冬境合成器微流派", "harsh noise wall":"極端噪音牆／Harsh Noise Wall", "musique concrète instrumentale":"器樂具體音樂實驗實踐", "kankyō ongaku":"日本環境音樂／Kankyō Ongaku", "onkyo":"日本 Onkyo 極簡即興場景", "vapornoise":"蒸氣噪音／Vapornoise",
+      "wave":"Wave 低音電子場景", "weightless":"Weightless 實驗俱樂部風格", "lo-fi house":"低傳真浩室", "dub techno":"迴響 Dub Techno", "autonomic":"Autonomic 氛圍 Drum & Bass 場景", "splittercore":"Splittercore 極速硬核微流派", "extratone":"Extratone 超高速硬核微流派", "frenchcore":"Frenchcore 法式硬核", "makina":"Makina 西班牙高速銳舞", "j-core":"J-Core 日本硬核電子場景",
+      "acousmatic":"聲像音樂／Acousmatic 實驗實踐", "electroacoustic":"電聲音樂／Electroacoustic", "eai":"電聲即興／EAI", "microsound":"微聲音／Microsound", "sound collage":"聲音拼貼／Sound Collage",
+      "goregrind":"血腥碾核／Goregrind", "gorenoise":"血腥噪音／Gorenoise", "deathgrind":"死亡碾核／Deathgrind", "cybergrind":"賽博碾核／Cybergrind", "nintendocore":"任天堂核／Nintendocore", "skramz":"Skramz 地下 Screamo 場景", "emoviolence":"Emoviolence 暴烈 Emo 微流派", "ethereal wave":"飄渺浪潮／Ethereal Wave",
+      "wuxia-inspired":"武俠意境修飾", "xianxia-inspired":"仙俠意境修飾", "jianghu atmosphere":"江湖氛圍", "ancient chinese fantasy":"中國古典奇幻",
+      "chinese historical drama soundtrack":"中式古裝劇配樂感", "martial arts cinematic":"武俠電影感", "pentatonic melodic phrasing":"五聲音階旋律語法",
+      "_v72_gap_marker":"資料稽核標記"
+    };
+
+    const TAG_STATUS_REGISTRY = {
+      "zhongguo feng": {kind:"established", label:"✅ Established", note:"有穩定音樂使用脈絡的中國風／Chinese-style pop fusion。"},
+      "gufeng music": {kind:"established", label:"✅ Established", note:"網路文化中形成的古風音樂類型，與 Zhongguo feng 相近但不完全相同。"},
+      "guofeng music": {kind:"scene", label:"🎬 Scene", note:"較寬的當代國風使用語；不視為固定聲響公式。"},
+      "guochao music": {kind:"scene", label:"🎬 Scene", note:"國潮文化脈絡下的現代混合場景；可融合電子、Hip-Hop 等，不視為單一固定 Genre。"},
+      "wuxia-inspired": {kind:"modifier", label:"🧩 Modifier", note:"武俠敘事／場景 Prompt 修飾詞，不宣稱為正式 Genre。"},
+      "xianxia-inspired": {kind:"modifier", label:"🧩 Modifier", note:"仙俠敘事／場景 Prompt 修飾詞，不宣稱為正式 Genre。"},
+      "jianghu atmosphere": {kind:"modifier", label:"🧩 Modifier", note:"江湖氛圍描述，用來修飾既有核心曲風。"},
+      "ancient chinese fantasy": {kind:"modifier", label:"🧩 Modifier", note:"中國古典奇幻敘事描述，不宣稱為正式 Genre。"},
+      "chinese historical drama soundtrack": {kind:"modifier", label:"🧩 Modifier", note:"古裝／歷史劇配樂情境描述。"},
+      "martial arts cinematic": {kind:"modifier", label:"🧩 Modifier", note:"武俠電影感描述。"},
+      "pentatonic melodic phrasing": {kind:"modifier", label:"🧩 Modifier", note:"五聲音階旋律語法描述。"},
+      "visual kei": {kind:"scene", label:"🎬 Scene", note:"日本視覺系音樂場景／風格名稱。"},
+      "harajuku-core": {kind:"scene", label:"🎬 Scene", note:"HANABIE. 與其粉絲使用的 Harajuku-core 稱呼；屬樂團／社群場景用語。"},
+      "denpa": {kind:"established", label:"✅ Established", note:"MusicBrainz 收錄的日本流行音樂 Genre／場景標籤。"},
+      "electronicore": {kind:"established", label:"✅ Established", note:"EDM 與 metalcore 融合的 established fusion genre。"},
+      "yacht rock": {kind:"scene", label:"🎬 Scene", note:"後來形成的 1970s–80s smooth pop/soft-rock 場景名稱。"},
+      "barber beats": {kind:"micro", label:"🌀 Microgenre", note:"網路微流派。"},
+      "dreampunk": {kind:"micro", label:"🌀 Microgenre", note:"網路／實驗電子微流派。"},
+      "bubblegum bass": {kind:"micro", label:"🌀 Microgenre", note:"網路與實驗流行／電子場景常用名稱。"},
+      "hardgroove techno": {kind:"established", label:"✅ Established", note:"Techno 俱樂部風格名稱。"},
+      "deconstructed club": {kind:"scene", label:"🎬 Scene", note:"實驗俱樂部場景／風格名稱。"},
+      "hardwave": {kind:"scene", label:"🎬 Scene", note:"現代 Wave / bass 場景風格。"},
+      "jersey drill": {kind:"scene", label:"🎬 Scene", note:"地區化 Drill 場景。"},
+      "midwest emo": {kind:"established", label:"✅ Established", note:"Emo 子流派／場景。"},
+      "slowcore": {kind:"established", label:"✅ Established", note:"慢速、低密度另類搖滾子流派。"},
+      "sadcore": {kind:"scene", label:"🎬 Scene", note:"與 Slowcore 等低速憂鬱獨立音樂脈絡相關的用語。"},
+      "hexd": {kind:"micro", label:"🌀 Microgenre", note:"來源驗證名稱；網路地下嘻哈微流派。"},
+      "jersey club rap": {kind:"scene", label:"🎬 Scene", note:"Jersey Club 與 Rap 交會的地區場景名稱。"},
+      "taiwanese hip hop": {kind:"regional", label:"🌍 Regional", note:"臺灣嘻哈地區場景描述。"},
+      "luk thung": {kind:"regional", label:"🌍 Regional", note:"泰國已建立的鄉村／流行音樂傳統與場景。"},
+      "singeli": {kind:"established", label:"✅ Established", note:"坦尚尼亞高速舞曲風格／場景。"},
+      "dungeon synth": {kind:"scene", label:"🎬 Scene", note:"已建立的暗黑氛圍合成器場景。"},
+      "winter synth": {kind:"micro", label:"🌀 Microgenre", note:"Dungeon Synth / Ambient 周邊微流派。"},
+      "harsh noise wall": {kind:"established", label:"✅ Established", note:"Noise music 的極端子流派／風格。"},
+      "musique concrète instrumentale": {kind:"practice", label:"🧩 Practice", note:"實驗作曲／聲音實踐名稱，不冒充一般流行 Genre。"},
+      "kankyō ongaku": {kind:"scene", label:"🎬 Scene", note:"日本環境音樂場景／脈絡名稱。"},
+      "onkyo": {kind:"scene", label:"🎬 Scene", note:"日本實驗／即興音樂場景名稱。"},
+      "vapornoise": {kind:"micro", label:"🌀 Microgenre", note:"Vaporwave 與 Noise 交會的網路微流派。"},
+      "wave": {kind:"scene", label:"🎬 Scene", note:"現代 bass / trap-adjacent 電子場景用語；不是泛指所有 wave。"},
+      "weightless": {kind:"scene", label:"🎬 Scene", note:"Grime / ambient 周邊實驗俱樂部風格。"},
+      "lo-fi house": {kind:"established", label:"✅ Established", note:"Lo-fi production aesthetics 與 House 的已建立風格。"},
+      "dub techno": {kind:"established", label:"✅ Established", note:"Techno 與 Dub 空間製作融合的已建立子流派。"},
+      "autonomic": {kind:"scene", label:"🎬 Scene", note:"Drum & Bass 周邊場景／風格名稱。"},
+      "splittercore": {kind:"micro", label:"🌀 Microgenre", note:"Speedcore 周邊極高速微流派。"},
+      "extratone": {kind:"micro", label:"🌀 Microgenre", note:"Speedcore / Noise 周邊超高速微流派。"},
+      "frenchcore": {kind:"established", label:"✅ Established", note:"Hardcore techno 的已建立子流派。"},
+      "makina": {kind:"scene", label:"🎬 Scene", note:"西班牙／加泰隆尼亞高速 rave 場景與風格。"},
+      "j-core": {kind:"scene", label:"🎬 Scene", note:"日本 hardcore electronic 場景名稱。"},
+      "acousmatic": {kind:"practice", label:"🧩 Practice", note:"電聲／聲音藝術的作曲與聆聽實踐。"},
+      "electroacoustic": {kind:"practice", label:"🧩 Practice", note:"電聲音樂廣義類別／創作實踐。"},
+      "eai": {kind:"practice", label:"🧩 Practice", note:"Electroacoustic Improvisation 的場景／實踐縮寫。"},
+      "microsound": {kind:"practice", label:"🧩 Practice", note:"以極短聲音粒子為核心的實驗電子／聲音實踐。"},
+      "sound collage": {kind:"practice", label:"🧩 Practice", note:"聲音拼貼式作曲／製作方法。"},
+      "goregrind": {kind:"established", label:"✅ Established", note:"Grindcore / Death Metal 周邊已建立極端金屬子流派。"},
+      "gorenoise": {kind:"micro", label:"🌀 Microgenre", note:"Goregrind / Noise 周邊極端微流派。"},
+      "deathgrind": {kind:"established", label:"✅ Established", note:"Death Metal 與 Grindcore 的已建立融合子流派。"},
+      "cybergrind": {kind:"scene", label:"🎬 Scene", note:"Grindcore 與電子／數位製作交會場景。"},
+      "nintendocore": {kind:"scene", label:"🎬 Scene", note:"Metalcore / Hardcore 與 chiptune / game-music aesthetics 的場景名稱。"},
+      "skramz": {kind:"scene", label:"🎬 Scene", note:"地下 Screamo / Emo 場景常用名稱。"},
+      "emoviolence": {kind:"micro", label:"🌀 Microgenre", note:"Screamo 與 Powerviolence 交會微流派。"},
+      "ethereal wave": {kind:"established", label:"✅ Established", note:"Gothic / Dream Pop 周邊已建立的飄渺暗潮風格。"},
+      "tremolo chinese bagpipe": {kind:"tested", label:"🧪 Suno-tested", note:"創作者實測可觸發接近嗩吶的聲響；不是正式樂器學名稱。"}
+    };
+
+    const CATEGORY_STATUS_REGISTRY = {
+      "chinese-guofeng-established": {label:"資料分級", note:"Established + Scene 混合；每個特殊詞會另顯示身份徽章。"},
+      "japan-modern-scenes": {label:"Scene", note:"場景／社群名稱，不等於所有項目都是嚴格音樂學 Genre。"},
+      "regional-pop-east-se-asia": {label:"Regional", note:"國家／地區 descriptor 與已建立場景混合。"},
+      "regional-pop-south-west-central-asia": {label:"Regional", note:"國家／地區 descriptor 與已建立場景混合。"},
+      "regional-pop-europe": {label:"Regional", note:"國家／地區 descriptor 與已建立場景混合。"},
+      "regional-pop-africa": {label:"Regional", note:"國家／地區 descriptor 與已建立場景混合。"},
+      "regional-pop-americas": {label:"Regional", note:"國家／地區 descriptor 與已建立場景混合。"},
+      "regional-pop-oceania-pacific": {label:"Regional", note:"國家／地區 descriptor 與已建立場景混合。"},
+      "internet-experimental": {label:"Experimental", note:"網路微流派／實驗場景；不全部視為傳統正式 Genre。"}
+    };
+
     // ===== V7 臺灣文化／Instrument Lab 顯示字典 =====
     const v7TagZh = {
       "taiwanese taigi vocals":"臺灣台語人聲", "southern taiwanese taigi accent":"臺灣台語南部腔", "northern taiwanese taigi accent":"臺灣台語北部腔", "neipu taiwanese taigi accent":"臺灣台語內埔腔", "haikou taiwanese taigi accent":"臺灣台語海口腔", "taiwanese taigi natural tonal phrasing":"臺灣台語自然聲調語流",
@@ -1535,7 +1715,8 @@
       const clean = tag.trim();
       const lower = clean.toLowerCase();
 
-      // 1. 直接命中翻譯字典 / V7 文化與樂器字典
+      // 1. 直接命中翻譯字典 / V7.2 新增 / V7 文化與樂器字典
+      if (typeof v72TagZh !== 'undefined' && v72TagZh[lower]) return v72TagZh[lower];
       if (v7TagZh[lower]) return v7TagZh[lower];
       if (zhDict[clean]) return zhDict[clean];
       if (zhDict[lower]) return zhDict[lower];
@@ -2264,10 +2445,7 @@
       styleText = ensureTaiwaneseHokkienStyle(styleText);
 
       const lyricsText=buildArrangementTimeline(styleText,true).slice(0,5000);
-      const smartExclude=generateSmartExclude(styleText);
-      const excludeExtras=[];
-      for(let i=0;i<2;i++){ const item=takeFromDeck('exclude',{predicate:x=>!styleText.toLowerCase().includes(x.tag.toLowerCase())}); if(item&&!smartExclude.toLowerCase().includes(item.tag.toLowerCase()))excludeExtras.push(item.tag); }
-      const excludeText=uniqText([...(smartExclude?smartExclude.split(',').map(x=>x.trim()):[]),...excludeExtras]).slice(0,7).join(', ');
+      const excludeText=generateSmartExclude(styleText, lyricsText).slice(0,1000);
 
       styleInput.value=styleText; lyricsInput.value=lyricsText; excludeInput.value=excludeText;
       syncToComplete(); updateAllActiveTags(); updateAllCharCounts(); saveRandomDeckState(); updateRandomCycleBadge();
@@ -2303,12 +2481,12 @@
     function detectArrangementFamily(styleText) {
       const t = String(styleText || '').toLowerCase();
       if (/instrumental|film score|cinematic|orchestral|classical|ambient classical|soundtrack|trailer/.test(t) && !/vocal|rap|singer|lyrics/.test(t)) return 'cinematic';
-      if (/metal|metalcore|deathcore|\brock\b|punk|post-hardcore|djent|grunge|emo rock|riff-driven/.test(t)) return 'rock';
+      if (/metal|metalcore|deathcore|\brock\b|punk|post-hardcore|djent|grunge|emo rock|riff-driven|harajuku-core|visual kei|goregrind|gorenoise|deathgrind|cybergrind|nintendocore|skramz|emoviolence|ethereal wave/.test(t)) return 'rock';
       if (/drill|hip hop|hip-hop|\brap\b|trap|boom bap|phonk|grime|jersey club rap|cloud rap|emo rap/.test(t)) return 'hiphop';
-      if (/house|techno|trance|edm|garage|2-step|drum and bass|dnb|dubstep|breakbeat|amapiano|gqom|vinahouse|dance pop|club|hardstyle|jungle|footwork/.test(t)) return 'club';
+      if (/house|techno|trance|edm|garage|2-step|drum and bass|dnb|dubstep|breakbeat|amapiano|gqom|vinahouse|dance pop|club|hardstyle|jungle|footwork|\bwave\b|weightless|autonomic|splittercore|extratone|frenchcore|makina|j-core|singeli/.test(t)) return 'club';
       if (/jazz|soul|funk|neo soul|r&b|rhythm 'n' blues|motown|philly soul|quiet storm/.test(t)) return 'soul';
-      if (/folk|country|acoustic|bluegrass|americana|ballad|singer-songwriter|ghazal|fado|enka|luk thung|reggae|ska|world|traditional/.test(t)) return 'organic';
-      if (/experimental|breakcore|glitch|idm|noise|weirdcore|dariacore|digicore|avant-garde|industrial/.test(t)) return 'experimental';
+      if (/folk|country|acoustic|bluegrass|americana|ballad|singer-songwriter|ghazal|fado|enka|luk thung|reggae|ska|world|traditional|gufeng|guofeng/.test(t)) return 'organic';
+      if (/experimental|breakcore|glitch|idm|noise|weirdcore|dariacore|digicore|avant-garde|industrial|hexd|dungeon synth|winter synth|vapornoise|acousmatic|electroacoustic|microsound|sound collage|musique concrète instrumentale|onkyo|kankyō ongaku/.test(t)) return 'experimental';
       return 'pop';
     }
 
@@ -2322,19 +2500,19 @@
     function compatibleGenreCategoriesForAnchor(anchorText) {
       const family = detectArrangementFamily(anchorText);
       const map = {
-        pop: ['pop-indie','hip-hop-rnb','rnb-soul-funk-heritage','electronic-dance','world-regional','club-internet'],
+        pop: ['pop-indie','hip-hop-rnb','rnb-soul-funk-heritage','electronic-dance','world-regional','club-internet','chinese-guofeng-established','japan-modern-scenes'],
         club: ['electronic-dance','club-internet','internet-experimental','pop-indie','african-micro','latin-cuban-urban'],
-        hiphop: ['hip-hop-rnb','rnb-soul-funk-heritage','club-internet','pop-indie','african-micro','latin-cuban-urban'],
-        rock: ['rock-punk-subgenres','rock-metal-punk','industrial-gothic','pop-indie','folk-country-blues','classical-cinematic'],
-        soul: ['rnb-soul-funk-heritage','hip-hop-rnb','jazz-heritage','pop-indie','electronic-dance','african-micro'],
-        organic: ['folk-country-blues','world-regional','jamaican-reggae','latin-cuban-urban','african-micro','pop-indie'],
-        cinematic: ['classical-cinematic','ambient-dummy','world-regional','internet-experimental','rock-punk-subgenres'],
+        hiphop: ['hip-hop-rnb','rnb-soul-funk-heritage','club-internet','pop-indie','african-micro','latin-cuban-urban','chinese-guofeng-established'],
+        rock: ['rock-punk-subgenres','rock-metal-punk','industrial-gothic','pop-indie','folk-country-blues','classical-cinematic','japan-modern-scenes','chinese-guofeng-established'],
+        soul: ['rnb-soul-funk-heritage','hip-hop-rnb','jazz-heritage','pop-indie','electronic-dance','african-micro','chinese-guofeng-established'],
+        organic: ['folk-country-blues','world-regional','jamaican-reggae','latin-cuban-urban','african-micro','pop-indie','chinese-guofeng-established'],
+        cinematic: ['classical-cinematic','ambient-dummy','world-regional','internet-experimental','rock-punk-subgenres','chinese-guofeng-established'],
         experimental: ['internet-experimental','industrial-gothic','club-internet','electronic-dance','rock-punk-subgenres','classical-cinematic']
       };
       return (map[family] || map.pop).filter(id => id !== 'ambient-dummy');
     }
 
-    // ===== V7.1 台語硬鎖規則 =====
+    // ===== V7.2 台語硬鎖規則 =====
     // 使用者實測：Taiwanese Hokkien + 每段 [Taiwanese Hokkien accent vocal]
     // 能顯著提高 Suno 以台語演唱的穩定度，因此這裡視為網站輸出硬規則，而非隨機建議。
     const TAIWANESE_HOKKIEN_STYLE_TOKEN = 'Taiwanese Hokkien';
@@ -2648,7 +2826,7 @@
         const tag = e.tag;
         if (cat === 'core-lock') groups.core.push(tag);
         else if (GLOBAL_REGIONAL_CATEGORY_IDS.includes(cat)) groups.regional.push(tag);
-        else if (/core-genres|mega-xl|electronic-dance|industrial-gothic|rock-metal|rock-punk|hip-hop|rnb-soul|folk-country|jazz-heritage|jamaican-reggae|pop-indie|latin-cuban|african-micro|world-regional|classical-cinematic|utility-music|club-internet|internet-experimental/.test(cat)) groups.genres.push(tag);
+        else if (/core-genres|mega-xl|electronic-dance|industrial-gothic|rock-metal|rock-punk|hip-hop|rnb-soul|folk-country|jazz-heritage|jamaican-reggae|pop-indie|latin-cuban|african-micro|world-regional|classical-cinematic|utility-music|club-internet|internet-experimental|chinese-guofeng-established|japan-modern-scenes/.test(cat)) groups.genres.push(tag);
         else if (/tempo-rhythm|time-signatures|keys-scales|eras-decades|languages/.test(cat)) groups.tempo.push(tag);
         else if (/vocal-|taiwan-taigi-accents|opera-vocal-systems|opera-role-vocals/.test(cat)) groups.vocal.push(tag);
         else if (/opera-traditions|taiwan-traditional-ensembles|taiwan-indigenous-contexts/.test(cat)) groups.regional.push(tag);
@@ -2696,20 +2874,95 @@
       return ensureTaiwaneseHokkienStyle(result.trim());
     }
 
-    function generateSmartExclude(styleText) {
-      const t = String(styleText || '').toLowerCase();
-      const candidates = [];
-      if (/soft|gentle|ballad|acoustic|dreamy|ambient|intimate|sparse/.test(t)) candidates.push('harsh screaming','extreme distortion','overly aggressive drums','festival EDM drops');
-      if (/house|techno|trance|garage|edm|club|amapiano|gqom|vinahouse/.test(t)) candidates.push('loose timing','muddy kick and bass','unfocused acoustic jam','long spoken narration');
-      if (/metal|hard rock|punk|djent|metalcore/.test(t)) candidates.push('soft lounge arrangement','weak drum impact','thin guitars','overly glossy easy listening');
-      if (/rap|hip hop|drill|trap|grime/.test(t)) candidates.push('operatic belting','busy orchestral counterpoint','weak low end','long instrumental intro');
-      if (/r&b|soul|jazz|funk/.test(t)) candidates.push('harsh brickwall distortion','rigid quantized phrasing','overcrowded midrange','excessive vocal reverb');
-      if (/instrumental|no vocals/.test(t)) candidates.push('lead vocal','spoken word','narration','chant vocals');
-      else candidates.push('spoken word','podcast narration');
-      if (/male vocal/.test(t) && !/female vocal|duet/.test(t)) candidates.push('female lead vocal');
-      if (/female vocal/.test(t) && !/male vocal|duet/.test(t)) candidates.push('male lead vocal');
-      const cleaned = uniqText(candidates).filter(x => !t.includes(x.toLowerCase().replace('lead ','')));
-      return cleaned.slice(0, 6).join(', ');
+    function generateSmartExclude(styleText, lyricsText = '') {
+      const style = String(styleText || '').toLowerCase();
+      const lyrics = String(lyricsText || '').toLowerCase();
+      const ctx = `${style} ${lyrics}`;
+      const has = re => re.test(ctx);
+      const hasStyle = re => re.test(style);
+      const instrumental = has(/instrumental only|no vocals|\[instrumental\]|\[no vocals\]/i);
+      const buckets = { critical: [], quality: [], genre: [], structure: [], culture: [] };
+      const add = (bucket, ...items) => items.flat().forEach(x => {
+        const v = String(x || '').trim();
+        if (!v) return;
+        const exists = Object.values(buckets).some(arr => arr.some(y => y.toLowerCase() === v.toLowerCase()));
+        if (!exists) buckets[bucket].push(v);
+      });
+
+      // A. 語言／人聲硬衝突：最優先，避免被一般風格排除詞擠掉。
+      if (!instrumental) {
+        if (hasStyle(/taiwanese hokkien|taiwanese taigi|gezai/i)) {
+          if (!hasStyle(/bilingual|multilingual/i)) add('critical', 'random language switching');
+          if (!hasStyle(/mandarin lyrics|bilingual|multilingual/i)) add('critical', 'Mandarin-only lead vocal');
+          if (!hasStyle(/english lyrics|bilingual|multilingual/i)) add('critical', 'English-only lead vocal');
+        }
+        if (hasStyle(/\bmale vocal\b|baritone|tenor|bass voice/i) && !hasStyle(/\bfemale vocal\b|duet/i)) add('critical', 'female lead vocal');
+        if (hasStyle(/\bfemale vocal\b|soprano|mezzo|alto/i) && !hasStyle(/\bmale vocal\b|duet/i)) add('critical', 'male lead vocal');
+        if (hasStyle(/breathy|intimate|soft vocal|restrained vocal/i)) add('critical', 'aggressive screaming');
+        if (hasStyle(/screamed|screaming|growl|shouted/i)) add('critical', 'whisper-only vocal');
+      }
+
+      // B. 通用品質：固定少量高價值項目，不用長黑名單淹沒真正衝突。
+      add('quality', 'muddy mix', 'clipping', 'random genre switching');
+      if (!instrumental) add('quality', 'muffled vocals', 'unintelligible lyrics');
+
+      // C. 主風格偏航風險：不是機械式反義詞，而是容易把核心聲音帶歪的方向。
+      if (hasStyle(/r&b|neo soul|soul|quiet storm|slow jam/i)) add('genre', 'festival EDM drop', 'hardstyle kick', 'extreme metal riff');
+      if (hasStyle(/house|techno|trance|garage|club|amapiano|gqom|vinahouse|hardgroove/i)) add('genre', 'loose timing', 'unfocused acoustic jam');
+      if (hasStyle(/heavy metal|hard rock|metalcore|deathcore|djent|hardcore punk|thrash metal|death metal|black metal|power metal|nu metal|metal-led/i)) add('genre', 'weak drum impact', 'thin guitars', 'soft lounge arrangement');
+      if (hasStyle(/hip hop|rap|drill|trap|grime|boom bap/i)) add('genre', 'weak low end', 'overly busy orchestral counterpoint');
+      if (hasStyle(/ambient|dark ambient|cinematic|film score|soundtrack/i)) add('genre', 'comedic bounce', 'party chant');
+      if (hasStyle(/folk|acoustic|singer-songwriter|bluegrass/i)) add('genre', 'festival EDM drop', 'hardstyle kick');
+      if (hasStyle(/gufeng|zhongguo feng|guofeng|guochao|chinese traditional/i)) add('genre', 'generic western-only instrumentation');
+
+      // D. Lyrics META／編曲結構衝突。
+      if (has(/\[instrumental break\]|\[guitar solo\]|\[saxophone solo\]|\[piano solo\]|\[violin solo\]/i)) add('structure', 'constant lead vocal over solos');
+      if (has(/\[breakdown\]|\[silent pause\]|\[stripped-back/i)) add('structure', 'constant full-density arrangement');
+      if (has(/\[build\]|\[build-up\]|\[pre-chorus\]/i)) add('structure', 'flat dynamics');
+      if (has(/\[final chorus\]|\[big chorus\]/i)) add('structure', 'underpowered final chorus');
+      if (instrumental) add('structure', 'lead vocal', 'spoken word', 'choir vocals');
+
+      // E. 文化／戲曲守門：只在明確文化方向存在時排除容易誤導的另一套聲腔。
+      if (hasStyle(/gezai|beiguan|nanguan/i) && !hasStyle(/western opera|operatic pop|classical crossover/i)) add('culture', 'western operatic belting');
+      if (hasStyle(/peking opera|xipi|erhuang/i) && !hasStyle(/western opera|operatic pop/i)) add('culture', 'western opera tenor style');
+
+      // F. Positive Protection：正面已明確要求的元素，不得被 Smart Exclude 反向排掉。
+      const conflicts = [
+        [/scream|growl|shout/i, /scream|growl|shout/i],
+        [/festival edm drop/i, /festival|big drop|beat drop/i],
+        [/hardstyle kick/i, /hardstyle/i],
+        [/extreme metal riff|thin guitars/i, /metal|guitar|riff/i],
+        [/^female lead vocal$/i, /female vocal|female lead|duet/i],
+        [/^male lead vocal$/i, /male vocal|male lead|duet/i],
+        [/^lead vocal$/i, /lead vocal|male vocal|female vocal|duet|sung vocal|singing/i],
+        [/spoken word/i, /spoken verse|spoken intro|spoken word|narration/i],
+        [/choir vocals/i, /choir|choral/i],
+        [/generic western-only instrumentation/i, /western-only instrumentation/i],
+        [/random language switching/i, /bilingual|multilingual|language switching/i],
+        [/operatic belting|western operatic belting|western opera tenor style/i, /opera|operatic|gezai|peking opera|kunqu|cantonese opera|yue opera|huangmei|xiqu/i]
+      ];
+      const ordered = [
+        ...buckets.critical,
+        ...buckets.quality,
+        ...buckets.genre,
+        ...buckets.structure,
+        ...buckets.culture
+      ];
+      const cleaned = ordered.filter(term => {
+        const termLower = term.toLowerCase();
+        if (style.includes(termLower)) return false;
+        for (const [negRe, posRe] of conflicts) if (negRe.test(termLower) && posRe.test(ctx)) return false;
+        return true;
+      });
+      return cleaned.slice(0, 12).join(', ');
+    }
+
+    function refreshSmartExclude() {
+      const style = styleInput.value.trim();
+      if (!style) { showToast('請先建立 Style，再產生 Smart Exclude。'); return; }
+      excludeInput.value = generateSmartExclude(style, lyricsInput.value).slice(0, 1000);
+      syncToComplete(); updateAllActiveTags(); updateAllCharCounts();
+      showToast('🛡️ 已依目前 Style + Lyrics META 重建 Smart Exclude');
     }
 
 
@@ -2868,7 +3121,7 @@
       const l = randomDeckState.lyrics;
       const e = randomDeckState.exclude;
       badge.textContent = `🎲 S${s.cycle} ${getDeckUsedCount('style')}/${randomPools.style.length} · META ${getDeckUsedCount('lyrics')}/${randomPools.lyrics.length} · CTX ${randomPools.context.length}`;
-      badge.title = 'S=一般 Style 公平抽籤袋；META=相容編曲標籤輪抽；CTX=文化情境相容池，按文化脈絡取樣而非強制公平輪抽，避免為了輪到標籤而破壞文化與編曲一致性。Exclude 另有獨立輪抽。';
+      badge.title = 'S=一般 Style 公平抽籤袋；META=相容編曲標籤輪抽；CTX=文化情境相容池，按文化脈絡取樣而非強制公平輪抽，避免為了輪到標籤而破壞文化與編曲一致性。Exclude 改由 Smart Exclude 動態推導，不參與無關隨機輪抽。';
     }
 
     function combineGenrePrefix(prefix, baseTag) {
@@ -2893,11 +3146,13 @@
 
         const header = document.createElement('div');
         header.className = 'category-header px-4 py-3 flex items-center justify-between cursor-pointer bg-[#141620] hover:bg-[#191d2c] transition select-none';
+        const categoryStatus = (typeof CATEGORY_STATUS_REGISTRY !== 'undefined' && CATEGORY_STATUS_REGISTRY[cat.id]) || null;
         header.innerHTML = `
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
             <span class="text-lg">${cat.icon}</span>
             <span class="text-xs sm:text-sm font-semibold text-gray-200">${cat.name}</span>
             <span class="text-[11px] px-2 py-0.5 rounded-full bg-[#1b202e] text-gray-400 font-mono">${cat.tags.length}</span>
+            ${categoryStatus ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-950/40 text-sky-300 border border-sky-700/30" title="${escapeHtml(categoryStatus.note)}">${escapeHtml(categoryStatus.label)}</span>` : ''}
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[11px] text-gray-500 uppercase tracking-wider hidden sm:inline">目標: ${cat.target.toUpperCase()}</span>
@@ -2925,11 +3180,12 @@
           chip.dataset.catId = cat.id;
 
           const testedAlias = typeof SUNO_TESTED_ALIASES !== 'undefined' && SUNO_TESTED_ALIASES[normalizeTagKey(tag)];
-          chip.title = testedAlias ? '🧪 Suno 實測觸發詞：保留實測寫法；與正式樂器名稱分開管理' : '';
+          const statusMeta = (typeof TAG_STATUS_REGISTRY !== 'undefined' && TAG_STATUS_REGISTRY[normalizeTagKey(tag)]) || null;
+          chip.title = statusMeta ? statusMeta.note : (testedAlias ? '🧪 Suno 實測觸發詞：保留實測寫法；與正式樂器名稱分開管理' : '');
           chip.innerHTML = `
-            <span class="font-medium text-gray-200 chip-zh">${zh}</span>
-            <span class="text-[10px] text-gray-400 font-mono opacity-80 chip-en">${tag}</span>
-            ${testedAlias ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/50 text-amber-300 border border-amber-700/30">🧪實測</span>' : ''}
+            <span class="font-medium text-gray-200 chip-zh">${escapeHtml(zh)}</span>
+            <span class="text-[10px] text-gray-400 font-mono opacity-80 chip-en">${escapeHtml(tag)}</span>
+            ${statusMeta ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-[#192033] text-sky-300 border border-sky-700/30">${escapeHtml(statusMeta.label)}</span>` : (testedAlias ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/50 text-amber-300 border border-amber-700/30">🧪實測</span>' : '')}
           `;
 
           chip.onclick = (e) => {
@@ -2949,7 +3205,7 @@
       if (totalTagsCounter) {
         const uniqueCount = allStylePool.length + randomPools.lyrics.length + randomPools.exclude.length;
         totalTagsCounter.textContent = `全庫 ${totalCount} 筆｜${uniqueCount} 個獨立標籤`;
-        totalTagsCounter.title = `Style 全庫 ${allStylePool.length}（一般輪抽 ${randomPools.style.length}＋文化情境 ${randomPools.context.length}）｜MetaTag ${randomPools.lyrics.length}｜Exclude ${randomPools.exclude.length}`;
+        totalTagsCounter.title = `Style 全庫 ${allStylePool.length}（一般輪抽 ${randomPools.style.length}＋文化情境 ${randomPools.context.length}）｜MetaTag ${randomPools.lyrics.length}｜Exclude 手動庫 ${randomPools.exclude.length}`;
       }
       updateAllActiveTags();
     }
@@ -3413,8 +3669,8 @@
       const onlyMeta = currentLyrics && currentLyrics.split('\n').every(line => !line.trim() || /^\[[^\]]+\]$/.test(line.trim()));
       if (!currentLyrics || onlyMeta) lyricsInput.value = buildArrangementTimeline(cleanedStyle, true).slice(0, 5000);
 
-      // Exclude 不再固定一串；若空白則依 Style 偏航風險即時產生。
-      if (!excludeInput.value.trim()) excludeInput.value = generateSmartExclude(cleanedStyle);
+      // V7.2 Smart Exclude：依 Style + 當前 META 動態重建，正面已選元素有 Positive Protection。
+      excludeInput.value = generateSmartExclude(cleanedStyle, lyricsInput.value).slice(0, 1000);
 
       syncToComplete();
       updateAllActiveTags();
@@ -3541,11 +3797,7 @@
     }
 
     function elaborateExclude() {
-      const cleanDefaults = "spoken word, podcast, narration, distortion, harsh, screaming, muffled, low quality";
-      excludeInput.value = cleanDefaults;
-      syncToComplete();
-      updateAllActiveTags();
-      showToast("已套用推薦純淨排除詞！");
+      refreshSmartExclude();
     }
 
     /**
@@ -3569,7 +3821,7 @@
         'rock-metal-punk', 'rock-punk-subgenres', 'hip-hop-rnb', 'rnb-soul-funk-heritage',
         'folk-country-blues', 'jazz-heritage', 'jamaican-reggae', 'pop-indie',
         'latin-cuban-urban', 'african-micro', 'world-regional', 'classical-cinematic',
-        'utility-music-functional', 'club-internet', 'internet-experimental'
+        'utility-music-functional', 'club-internet', 'internet-experimental', 'chinese-guofeng-established', 'japan-modern-scenes'
       ];
       const genreCategorySet = new Set([...allGenreCategoryIds, ...GLOBAL_REGIONAL_CATEGORY_IDS]);
       const hardCaps = {
@@ -3700,17 +3952,21 @@
       styleText = ensureTaiwaneseHokkienStyle(styleText);
 
       const lyricsText=buildArrangementTimeline(styleText,true).slice(0,5000);
-      const smartExclude=generateSmartExclude(styleText);
-      const excludeExtras=[];
-      for(let i=0;i<2;i++){
-        const item=takeFromDeck('exclude',{predicate:x=>!styleText.toLowerCase().includes(x.tag.toLowerCase())});
-        if(item && !smartExclude.toLowerCase().includes(item.tag.toLowerCase())) excludeExtras.push(item.tag);
-      }
-      const excludeText=uniqText([...(smartExclude?smartExclude.split(',').map(x=>x.trim()):[]),...excludeExtras]).slice(0,7).join(', ');
+      // V7.2：自動 Exclude 完全由 Style + META 推導，不再隨機抽無關負面詞。
+      const excludeText=generateSmartExclude(styleText, lyricsText).slice(0,1000);
 
       styleInput.value=styleText; lyricsInput.value=lyricsText; excludeInput.value=excludeText;
       syncToComplete(); updateAllActiveTags(); updateAllCharCounts(); saveRandomDeckState(); updateRandomCycleBadge();
-      showToast(`🎲 V7.1 全庫聯動生成完成｜Style ${styleText.length} 字元｜META 同源編排｜Style輪抽 ${getDeckUsedCount('style')}/${randomPools.style.length}`);
+      showToast(`🎲 V7.2 全庫聯動生成完成｜Style ${styleText.length} 字元｜META 同源編排｜Style輪抽 ${getDeckUsedCount('style')}/${randomPools.style.length}`);
+    }
+
+    function openHelpModal() {
+      const modal = document.getElementById('helpModal');
+      if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeHelpModal() {
+      const modal = document.getElementById('helpModal');
+      if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
     }
 
     function openPresetsModal() {
@@ -3721,10 +3977,10 @@
         card.className = 'p-3.5 rounded-xl bg-[#171a26] border border-[#23283a] hover:border-[#ff4742] transition cursor-pointer flex flex-col gap-2';
         card.innerHTML = `
           <div class="flex items-center justify-between">
-            <span class="font-bold text-white text-xs sm:text-sm">${item.title}</span>
+            <span class="font-bold text-white text-xs sm:text-sm">${escapeHtml(item.title)}</span>
             <button class="px-2.5 py-1 text-xs rounded-md btn-gradient text-white">套用</button>
           </div>
-          <div class="text-[11px] text-gray-400 font-mono line-clamp-2"><b>STYLE:</b> ${item.style}</div>
+          <div class="text-[11px] text-gray-400 font-mono line-clamp-2"><b>STYLE:</b> ${escapeHtml(item.style)}</div>
         `;
         card.onclick = () => {
           styleInput.value = item.style;
