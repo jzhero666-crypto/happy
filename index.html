@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW" class="dark">
 <head>
-  <!-- BUILD: ZML-v7.6.1-V6-READY -->
+  <!-- BUILD: ZML-v7.6.2-V6-READY -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZML Suno Prompt Studio v7.6｜繁中 Suno v6 提示詞工具：Style × META × Smart Exclude</title>
@@ -2443,13 +2443,18 @@
       </div>
     </div>
 
+    <div id="relatedTagsBox" class="hidden mb-3 rounded-xl border border-[#1e2335] bg-[#0f1119] px-3 py-2.5">
+      <div class="text-[11px] text-gray-400 mb-2">相關標籤 <span class="text-gray-600">（同一家族的風格，點一下加入；也可以反白複製）</span></div>
+      <div id="relatedTags" class="flex flex-wrap gap-1.5"></div>
+    </div>
+
     <!-- Accordion Tag Categories -->
     <div id="categoriesWrapper" class="space-y-3">
       <!-- Injected by JavaScript -->
     </div>
 
     <div class="mt-5 mb-2 px-4 py-3 rounded-xl border border-[#1e2335] bg-[#0e1119] text-[11px] text-gray-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.6.1 · Suno v6 Ready</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。 <a href="https://linktr.ee/zmlmusic" target="_blank" rel="noopener noreferrer" class="studio-gold hover:text-white">ZML MUSIC ↗</a></span>
+      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.6.2 · Suno v6 Ready</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。 <a href="https://linktr.ee/zmlmusic" target="_blank" rel="noopener noreferrer" class="studio-gold hover:text-white">ZML MUSIC ↗</a></span>
       <span>🔒 純前端版本：收藏、DNA、結構 Presets 與輪抽進度只儲存在你的瀏覽器 localStorage，不會上傳到 ZML 伺服器。</span>
     </div>
 
@@ -8923,22 +8928,7 @@
             ${statusMeta ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-[#192033] text-sky-300 border border-sky-700/30">${escapeHtml(statusMeta.label)}</span>` : (testedAlias ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/50 text-amber-300 border border-amber-700/30">🧪實測</span>' : '')}
           `;
 
-          chip.onmousedown = (e) => { chip._downX = e.clientX; chip._downY = e.clientY; };
-          chip.onclick = (e) => {
-            e.stopPropagation();
-            // v7.6.1：可反白複製。拖曳或雙擊／三擊是在選字，不切換標籤；單擊稍等一下確認不是雙擊。
-            if (e.detail === 0) { handleTagClick(tag, cat.target, cat.id); return; }
-            clearTimeout(chip._clickTimer);
-            if (e.detail > 1) return;
-            const moved = Math.abs(e.clientX - (chip._downX ?? e.clientX)) + Math.abs(e.clientY - (chip._downY ?? e.clientY)) > 4;
-            const sel = window.getSelection ? String(window.getSelection()) : '';
-            if (moved && sel.trim()) return;
-            chip._clickTimer = setTimeout(() => {
-              const sel2 = window.getSelection ? String(window.getSelection()) : '';
-              if (sel2.trim() && window.getSelection().containsNode(chip, true)) return;
-              handleTagClick(tag, cat.target, cat.id);
-            }, 230);
-          };
+          attachChipClick(chip, tag, cat.target, cat.id);
           tagContainer.appendChild(chip);
         });
 
@@ -10049,12 +10039,152 @@
 
     function normSearch(t){ return String(t||'').normalize('NFKC').toLowerCase().replace(/[‐-―]/g,'-'); }
     function compactSearch(t){ return normSearch(t).replace(/[\s\-_/·・.]+/g,''); }
+    // v7.6.2：同義詞（打其中一個，整組都會搜）。網站翻譯不一致（可愛／萌系／卡哇伊），靠這裡補。
+    const SEARCH_SYNONYMS = [
+      ['可愛','卡哇伊','萌系','萌','kawaii','cute'],
+      ['電音','電子','電子樂','electronic','edm','electro'],
+      ['嘻哈','饒舌','說唱','hip hop','hip-hop','rap'],
+      ['搖滾','rock'], ['金屬','重金屬','metal'], ['龐克','朋克','punk'],
+      ['爵士','jazz'], ['藍調','blues'], ['靈魂','靈魂樂','soul'], ['節奏藍調','r&b','rnb'],
+      ['放克','funk'], ['迪斯可','迪斯科','disco'], ['雷鬼','reggae'], ['拉丁','latin'],
+      ['民謠','folk'], ['鄉村','country'], ['古典','classical'],
+      ['管弦','管弦樂','交響','交響樂','orchestral','orchestra','symphonic'],
+      ['電影感','電影配樂','配樂','cinematic','film score','soundtrack'], ['史詩','epic'],
+      ['流行','pop'], ['抒情','抒情歌','ballad'], ['舞曲','跳舞','dance'],
+      ['浩室','house'], ['鐵克諾','科技舞曲','techno'], ['迷幻','psychedelic','psy'], ['出神','trance'],
+      ['酸性','acid'], ['碎拍','breakbeat','breaks'], ['叢林','jungle'], ['陷阱','陷阱音樂','trap'],
+      ['鼓打貝斯','dnb','d&b','drum and bass','drum & bass'], ['迴響貝斯','dubstep'],
+      ['車庫','garage'], ['氛圍','氛圍音樂','ambient'], ['低傳真','lofi','lo-fi'],
+      ['放鬆','慵懶','chill','relaxed','laid-back','laid back'],
+      ['悲傷','傷感','憂傷','難過','sad','melancholic','melancholy'],
+      ['快樂','開心','歡樂','歡快','happy','joyful','upbeat'],
+      ['黑暗','暗黑','陰暗','dark'], ['夢幻','夢境','dreamy','dream'],
+      ['哥德','哥特','gothic','goth'], ['情緒搖滾','emo'], ['復古','retro','vintage'],
+      ['80年代','八零','80s','1980s'], ['90年代','九零','90s','1990s'],
+      ['國語','華語','中文','mandarin','chinese','mandopop','c-pop'],
+      ['台語','閩南語','taiwanese','hokkien'], ['粵語','廣東話','cantonese','cantopop'],
+      ['日本','日系','日語','japanese','j-pop','j-rock'], ['韓國','韓系','韓語','korean','k-pop'],
+      ['西班牙','spanish'], ['非洲','afro','african'], ['夏威夷','hawaiian'],
+      ['古風','國風','中國風','guofeng'],
+      ['女聲','女生','female vocal','female'], ['男聲','男生',' male vocal',' male'], ['人聲','vocal','vocals'],
+      ['合唱','合唱團','choir'], ['和聲','harmony','harmonies'],
+      ['鋼琴','piano'], ['吉他','guitar'], ['貝斯','bass'], ['合成器','synth','synthesizer'],
+      ['薩克斯風','薩克斯','sax','saxophone'], ['小提琴','violin'], ['大提琴','cello'], ['長笛','笛子','flute'],
+      ['古箏','guzheng'], ['二胡','erhu'], ['琵琶','pipa'], ['太鼓','taiko'], ['西塔琴','sitar'],
+      ['失真','distortion','distorted'], ['殘響','回音','reverb','echo'],
+      ['慢節奏','慢歌','slow'], ['快節奏','快歌','fast'], ['現場','演唱會','live','concert'],
+    ].map(g => g.map(normSearch));
+    function expandSearchToken(t){
+      const out = new Set([t]);
+      SEARCH_SYNONYMS.forEach(g => { if (g.some(x => x.trim() === t.trim())) g.forEach(x => out.add(x)); });
+      return [...out];
+    }
+    // 相關標籤：曲風家族（標籤含其中任一詞，就算同一家族）
+    // 相關標籤：「鄰居家族」。標籤含其中任一詞組（整詞比對）就屬於該家族。
+    const RELATED_FAMILIES = [
+      ['trance','psytrance','goa trance','hard trance','acid trance','vocal trance','eurodance','hard dance','hardstyle','progressive house','acid house'],
+      ['dubstep','riddim','brostep','drumstep','future bass','bass music','tearout','melodic dubstep','chillstep','trap edm'],
+      ['drum and bass','jungle','liquid drum and bass','neurofunk','breakbeat','breakcore','footwork','drumstep','uk garage'],
+      ['house','deep house','tech house','acid house','uk garage','2-step','speed garage','future house','bass house','disco house'],
+      ['techno','industrial techno','minimal techno','acid techno','hardstyle','gabber','ebm','electro'],
+      ['grime','drill','uk drill','uk rap','2-step','uk garage','dubstep'],
+      ['hip hop','rap','trap','boom bap','cloud rap','phonk','g-funk','drill','emo rap'],
+      ['r&b','soul','neo soul','funk','motown','gospel','alternative r&b','quiet storm'],
+      ['rock','indie rock','alternative rock','grunge','shoegaze','post-rock','garage rock'],
+      ['metal','metalcore','djent','deathcore','thrash metal','doom metal','nu metal','symphonic metal'],
+      ['punk','pop punk','emo','hardcore punk','post-punk','ska punk'],
+      ['jazz','swing','bebop','bossa nova','jazz fusion','big band','smooth jazz','acid jazz'],
+      ['pop','j-pop','k-pop','c-pop','mandopop','city pop','synthpop','dance pop','bubblegum pop','hyperpop'],
+      ['ambient','chillwave','downtempo','new age','drone','lofi','lo-fi','dream pop'],
+      ['chillstep','chillout','slushwave','vaporwave','chillwave','lofi','downtempo'],
+      ['disco','nu disco','italo disco','funk','boogie','edm disco'],
+      ['folk','country','americana','bluegrass','alt-country','anti-folk','singer-songwriter'],
+      ['classical','orchestral','cinematic','neoclassical','baroque','symphonic','film score'],
+      ['edm','big room','electro house','future house','bass house','festival','dance pop'],
+      ['glitch hop','glitch','idm','breakcore','algorave','hyperpop'],
+      ['reggae','dub','dancehall','ska','reggaeton'],
+      ['latin','salsa','cumbia','bachata','reggaeton','bossa nova','samba'],
+      ['afrobeats','amapiano','afro house','highlife','afro-funk','afrobeat'],
+      ['kawaii','kawaii future bass','bubblegum bass','hyperpop','future bass','j-pop','kawaii metal'],
+      ['sad','sadcore','melancholic','slowcore','emo','bittersweet','heartbreak','nostalgic','emotional','sad pop'],
+      ['happy','upbeat','joyful','feel-good','euphoric','uplifting'],
+      ['dark','darkwave','dark ambient','gothic','witch house','horror'],
+      ['dreamy','dream pop','ethereal','shoegaze','dreamy acid house'],
+      ['japanese','j-pop','j-rock','city pop','anime','tokyo'],
+      ['mandarin','chinese','mandopop','c-pop','guofeng','taiwanese','cantonese','cantopop'],
+      ['korean','k-pop','k-r&b','k-hip hop'],
+      ['male vocal','female vocal','vocal','voice','choir','harmony'],
+    ].map(f => f.map(k => normSearch(k)));
+    const RELATED_STOP = new Set(['and','the','of','n','music','style','with','a','vibe','vibes','sound','type']);
+    function chipWords(en){ return normSearch(en).split(/[\s\-_/]+/).filter(w => w && !RELATED_STOP.has(w)); }
+    function famText(en){ return ' ' + normSearch(en).replace(/[\-_/]+/g, ' ').replace(/\s+/g, ' ').trim() + ' '; }
+    function chipFamilies(en){ const e = famText(en); const out = []; RELATED_FAMILIES.forEach((f, i) => { if (f.some(k => e.includes(famText(k)))) out.push(i); }); return out; }
+    function isFamilyHead(en){ const e = famText(en); return RELATED_FAMILIES.some(f => f.some(k => famText(k) === e)); }
+
+    function attachChipClick(chip, tag, target, catId){
+      chip.onmousedown = (e) => { chip._downX = e.clientX; chip._downY = e.clientY; };
+      chip.onclick = (e) => {
+        e.stopPropagation();
+        if (e.detail === 0) { handleTagClick(tag, target, catId); return; }
+        clearTimeout(chip._clickTimer);
+        if (e.detail > 1) return;
+        const moved = Math.abs(e.clientX - (chip._downX ?? e.clientX)) + Math.abs(e.clientY - (chip._downY ?? e.clientY)) > 4;
+        if (moved && String(window.getSelection?.() || '').trim()) return;
+        chip._clickTimer = setTimeout(() => {
+          const sel2 = String(window.getSelection?.() || '');
+          if (sel2.trim() && window.getSelection().containsNode(chip, true)) return;
+          handleTagClick(tag, target, catId);
+        }, 230);
+      };
+    }
+    function renderRelatedTags(tokens, matchedChips, allChips){
+      const box = document.getElementById('relatedTagsBox'), wrap = document.getElementById('relatedTags');
+      if (!box || !wrap) return;
+      wrap.innerHTML = '';
+      if (!tokens.length) { box.classList.add('hidden'); return; }
+      const matchedKeys = new Set(matchedChips.map(c => c.dataset.tag));
+      // 家族分數：搜尋詞（含同義詞）命中的家族最重；結果裡佔比高的家族次之
+      const fam = new Map(); const bump = (f, v) => fam.set(f, (fam.get(f) || 0) + v);
+      tokens.forEach(t => { const hit = new Set(); expandSearchToken(t).forEach(x => chipFamilies(x.trim()).forEach(f => hit.add(f))); hit.forEach(f => bump(f, 3)); });
+      if (matchedChips.length) {
+        const cnt = new Map(); matchedChips.forEach(ch => chipFamilies(ch.dataset.tag).forEach(f => cnt.set(f, (cnt.get(f) || 0) + 1)));
+        cnt.forEach((n, f) => bump(f, 2 * n / matchedChips.length));
+      }
+      if (!fam.size) { box.classList.add('hidden'); return; }
+      const seen = new Set(); const scored = [];
+      allChips.forEach(ch => {
+        const en = ch.dataset.tag; if (matchedKeys.has(en) || seen.has(en) || /-$/.test(en)) return; seen.add(en);
+        const fs = chipFamilies(en); if (!fs.length) return;
+        let sc = 0; fs.forEach(f => { sc += fam.get(f) || 0; });
+        if (sc < 0.3) return;
+        const n = chipWords(en).length || 1;
+        sc = sc / n + (isFamilyHead(en) ? 1.5 : 0);   // 純曲風名（家族成員本身）優先，融合長名往後
+        scored.push([sc, ch]);
+      });
+      scored.sort((x, y) => y[0] - x[0]);
+      const pick = scored.slice(0, 18);
+      if (!pick.length) { box.classList.add('hidden'); return; }
+      pick.forEach(([, src]) => {
+        const en = src.dataset.tag, target = src.dataset.target, catId = src.dataset.catId;
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip related-chip text-xs bg-[#151722] hover:bg-[#1e2334] border border-[#202538] text-[#c0c6d4] px-2.5 py-1.5 rounded-lg cursor-pointer transition flex items-center gap-1.5';
+        chip.dataset.tag = en; chip.dataset.target = target; chip.dataset.catId = catId;
+        chip.setAttribute('role','button'); chip.tabIndex = 0;
+        chip.innerHTML = `<span class="font-medium text-gray-200 chip-zh">${escapeHtml(getTagZh(en, catId))}</span><span class="text-[10px] text-gray-400 font-mono opacity-80 chip-en">${escapeHtml(en)}</span>`;
+        attachChipClick(chip, en, target, catId);
+        if (src.classList.contains('active')) chip.classList.add('active');
+        wrap.appendChild(chip);
+      });
+      box.classList.remove('hidden');
+    }
     function filterTags() {
       const raw = searchInput.value;
       const q = normSearch(raw).trim();
       clearSearchBtn.style.display = q ? 'flex' : 'none';
       const tokens = q.split(/[\s,，、]+/).filter(Boolean);
       let total = 0;
+      const tokenVariants = tokens.map(expandSearchToken);
+      const matchedAll = [], allChips = [];
 
       document.querySelectorAll('.category-group').forEach(group => {
         let matchedCount = 0;
@@ -10067,9 +10197,11 @@
           const hay = normSearch(en + ' ' + zh + ' ' + aliases);
           const hayC = compactSearch(hay);
           // 每個詞都要命中（標籤本身，或分類名稱）；忽略大小寫、全半形、空格與連字號
-          const match = !tokens.length || tokens.every(t => hay.includes(t) || hayC.includes(compactSearch(t)) || catName.includes(t));
+          const match = !tokens.length || tokenVariants.every((vs, i) => catName.includes(tokens[i]) || vs.some(t => (' ' + hay).includes(t) || (t[0] !== ' ' && hayC.includes(compactSearch(t)))));
           chip.style.display = match ? '' : 'none';
           if (match) matchedCount++;
+          if (match && tokens.length) matchedAll.push(chip);
+          allChips.push(chip);
         });
         if (q) total += matchedCount;
 
@@ -10089,6 +10221,7 @@
           body.style.display=saved?'block':'none'; arrow.style.transform=saved?'rotate(0deg)':'rotate(-90deg)';
         }
       });
+      renderRelatedTags(tokens, matchedAll, allChips);
       const cnt = document.getElementById('searchResultCount');
       if (cnt) { cnt.classList.toggle('hidden', !q); cnt.textContent = q ? (total ? `找到 ${total} 個標籤` : '找不到，換個說法試試（中文、英文、拆成兩個詞）') : ''; }
       if (q) { const bar = document.getElementById('librarySearchBar'); const nav = document.querySelector('nav');
