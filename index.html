@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW" class="dark">
 <head>
-  <!-- BUILD: ZML-v7.6.0-V6-READY -->
+  <!-- BUILD: ZML-v7.6.1-V6-READY -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZML Suno Prompt Studio v7.6｜繁中 Suno v6 提示詞工具：Style × META × Smart Exclude</title>
@@ -2003,8 +2003,12 @@
     .btn-gradient:active { transform: translateY(0); }
     .tag-chip {
       transition: all 0.15s ease-out;
-      user-select: none;
+      -webkit-user-select: text;
+      user-select: text;
     }
+    .tag-chip *::selection, .tag-chip::selection { background:#ff4742; color:#fff; }
+    #librarySearchBar { position: sticky; top: var(--nav-h, 64px); z-index: 30; background:#0b0d14; padding:8px 0; margin-top:-8px; }
+    #searchResultCount { font-size:11px; color:#8b93a7; }
     .tag-chip:hover {
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -2412,19 +2416,20 @@
     </div>
 
     <!-- Search and Controls -->
-    <div class="mb-4 space-y-3">
+    <div id="librarySearchBar" class="mb-4 space-y-3">
       <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </div>
           <input type="text" id="searchInput" 
-            placeholder="搜尋中英文標籤 (例如: 哥德, post-punk, 藍調, darkwave, 128 bpm, drop, 薩克斯風)..." 
+            placeholder="搜尋風格（中英文都可，多個詞用空格：東京 trance、drum bass、dubstep 卡哇伊）按 / 快速搜尋" autocomplete="off" 
             oninput="filterTags()"
             class="w-full bg-[#11131b] border border-[#1f2436] focus:border-[#ff4742] focus:ring-1 focus:ring-[#ff4742] rounded-xl pl-9 pr-8 py-2.5 text-sm text-gray-200 placeholder-gray-500 outline-none transition">
           <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300">
             ✕
           </button>
+          <div id="searchResultCount" class="absolute -bottom-4 left-1 hidden"></div>
         </div>
 
         <div class="library-actions flex flex-wrap items-center gap-2 shrink-0">
@@ -2444,7 +2449,7 @@
     </div>
 
     <div class="mt-5 mb-2 px-4 py-3 rounded-xl border border-[#1e2335] bg-[#0e1119] text-[11px] text-gray-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.6.0 · Suno v6 Ready</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。 <a href="https://linktr.ee/zmlmusic" target="_blank" rel="noopener noreferrer" class="studio-gold hover:text-white">ZML MUSIC ↗</a></span>
+      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.6.1 · Suno v6 Ready</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。 <a href="https://linktr.ee/zmlmusic" target="_blank" rel="noopener noreferrer" class="studio-gold hover:text-white">ZML MUSIC ↗</a></span>
       <span>🔒 純前端版本：收藏、DNA、結構 Presets 與輪抽進度只儲存在你的瀏覽器 localStorage，不會上傳到 ZML 伺服器。</span>
     </div>
 
@@ -8903,7 +8908,7 @@
         cat.tags.forEach(tag => {
           const zh = getTagZh(tag, cat.id);
           const chip = document.createElement('span');
-          chip.className = 'tag-chip text-xs bg-[#151722] hover:bg-[#1e2334] border border-[#202538] text-[#c0c6d4] px-2.5 py-1.5 rounded-lg cursor-pointer transition select-none flex items-center gap-1.5';
+          chip.className = 'tag-chip text-xs bg-[#151722] hover:bg-[#1e2334] border border-[#202538] text-[#c0c6d4] px-2.5 py-1.5 rounded-lg cursor-pointer transition flex items-center gap-1.5';
           chip.dataset.tag = tag.toLowerCase();
           chip.dataset.target = cat.target;
           chip.dataset.catId = cat.id;
@@ -8918,9 +8923,21 @@
             ${statusMeta ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-[#192033] text-sky-300 border border-sky-700/30">${escapeHtml(statusMeta.label)}</span>` : (testedAlias ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/50 text-amber-300 border border-amber-700/30">🧪實測</span>' : '')}
           `;
 
+          chip.onmousedown = (e) => { chip._downX = e.clientX; chip._downY = e.clientY; };
           chip.onclick = (e) => {
             e.stopPropagation();
-            handleTagClick(tag, cat.target, cat.id);
+            // v7.6.1：可反白複製。拖曳或雙擊／三擊是在選字，不切換標籤；單擊稍等一下確認不是雙擊。
+            if (e.detail === 0) { handleTagClick(tag, cat.target, cat.id); return; }
+            clearTimeout(chip._clickTimer);
+            if (e.detail > 1) return;
+            const moved = Math.abs(e.clientX - (chip._downX ?? e.clientX)) + Math.abs(e.clientY - (chip._downY ?? e.clientY)) > 4;
+            const sel = window.getSelection ? String(window.getSelection()) : '';
+            if (moved && sel.trim()) return;
+            chip._clickTimer = setTimeout(() => {
+              const sel2 = window.getSelection ? String(window.getSelection()) : '';
+              if (sel2.trim() && window.getSelection().containsNode(chip, true)) return;
+              handleTagClick(tag, cat.target, cat.id);
+            }, 230);
           };
           tagContainer.appendChild(chip);
         });
@@ -10030,21 +10047,31 @@
       else previewArrangementBlueprintOnly();
     }
 
+    function normSearch(t){ return String(t||'').normalize('NFKC').toLowerCase().replace(/[‐-―]/g,'-'); }
+    function compactSearch(t){ return normSearch(t).replace(/[\s\-_/·・.]+/g,''); }
     function filterTags() {
-      const q = searchInput.value.toLowerCase().trim();
+      const raw = searchInput.value;
+      const q = normSearch(raw).trim();
       clearSearchBtn.style.display = q ? 'flex' : 'none';
+      const tokens = q.split(/[\s,，、]+/).filter(Boolean);
+      let total = 0;
 
       document.querySelectorAll('.category-group').forEach(group => {
         let matchedCount = 0;
         const chips = group.querySelectorAll('.tag-chip');
+        const catName = normSearch(group.querySelector('.category-header')?.textContent || '');
         chips.forEach(chip => {
           const en = chip.dataset.tag;
-          const zh = getTagZh(en, chip.dataset.catId || '').toLowerCase();
-          const aliases = en === 'west coast rap' ? ' west coast hip hop' : en === 'alternative r&b' ? ' pbr&b pbrnb' : en === 'musique concrete' ? ' musique concrète' : '';
-          const match = en.includes(q) || zh.includes(q) || aliases.includes(q);
-          chip.style.display = match ? 'inline-flex' : 'none';
+          const zh = getTagZh(en, chip.dataset.catId || '');
+          const aliases = en === 'west coast rap' ? ' west coast hip hop' : en === 'alternative r&b' ? ' pbr&b pbrnb' : en === 'musique concrete' ? ' musique concrète' : en.includes('drum and bass') ? ' dnb d&b' : '';
+          const hay = normSearch(en + ' ' + zh + ' ' + aliases);
+          const hayC = compactSearch(hay);
+          // 每個詞都要命中（標籤本身，或分類名稱）；忽略大小寫、全半形、空格與連字號
+          const match = !tokens.length || tokens.every(t => hay.includes(t) || hayC.includes(compactSearch(t)) || catName.includes(t));
+          chip.style.display = match ? '' : 'none';
           if (match) matchedCount++;
         });
+        if (q) total += matchedCount;
 
         const body = group.querySelector('.category-body');
         const arrow = group.querySelector('.acc-arrow');
@@ -10062,6 +10089,10 @@
           body.style.display=saved?'block':'none'; arrow.style.transform=saved?'rotate(0deg)':'rotate(-90deg)';
         }
       });
+      const cnt = document.getElementById('searchResultCount');
+      if (cnt) { cnt.classList.toggle('hidden', !q); cnt.textContent = q ? (total ? `找到 ${total} 個標籤` : '找不到，換個說法試試（中文、英文、拆成兩個詞）') : ''; }
+      if (q) { const bar = document.getElementById('librarySearchBar'); const nav = document.querySelector('nav');
+        if (bar && bar.getBoundingClientRect().top > (nav ? nav.offsetHeight : 0) + 4 && bar.getBoundingClientRect().top > window.innerHeight * 0.5) bar.scrollIntoView({block:'start'}); }
     }
 
     function clearSearch() {
@@ -10690,7 +10721,13 @@
     window.addEventListener('unhandledrejection', function(e){ setJsStatus(false, e.reason?.message || e.reason || 'promise error'); });
 
     // v7.5 無障礙：Esc 關閉彈窗；標籤與分類標題可用鍵盤（Tab 移動、Enter／空白鍵啟動）。
+    function syncNavHeight(){ const n=document.querySelector('nav'); if(n) document.documentElement.style.setProperty('--nav-h', n.offsetHeight + 'px'); }
+    window.addEventListener('resize', syncNavHeight); window.addEventListener('load', syncNavHeight); syncNavHeight();
     document.addEventListener('keydown', function(e){
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !(e.target instanceof HTMLElement && (e.target.matches('input, textarea, select') || e.target.isContentEditable))) {
+        const si = document.getElementById('searchInput'); if (si) { e.preventDefault(); si.focus(); si.select(); } return;
+      }
+      if (e.key === 'Escape' && e.target && e.target.id === 'searchInput' && e.target.value) { clearSearch(); return; }
       if (e.key === 'Escape') {
         [['coreVariationModal',closeCoreVariationModal],['helpModal',closeHelpModal],['presetsModal',closePresetsModal],['structureBuilderModal',closeStructureBuilder]].forEach(([id,fn])=>{
           const m=document.getElementById(id); if(m && !m.classList.contains('pointer-events-none')) fn();
