@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW" class="dark">
 <head>
-  <!-- BUILD: ZML-v7.6.3-V6-READY -->
+  <!-- BUILD: ZML-v7.6.4-V6-READY -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZML Suno Prompt Studio v7.6｜繁中 Suno v6 提示詞工具：Style × META × Smart Exclude</title>
@@ -2238,6 +2238,10 @@
             <div class="flex items-center justify-between gap-2 mb-1"><span id="styleCopyPreviewLabel" class="text-[10px] text-gray-500">按「複製」會送出這段</span><span id="styleCopyPreviewCount" class="text-[10px] font-mono text-gray-500"></span></div>
             <div id="styleCopyPreview" class="text-[11px] text-gray-300 leading-relaxed" style="max-height:9em;overflow-y:auto;word-break:break-word"></div>
           </div>
+          <details id="gmivCheckWrap" class="mt-2 rounded-lg border border-[#252b3e] bg-[#0b0d13] p-2" style="display:none">
+            <summary id="gmivCheckSummary" class="text-[11px] text-gray-400 cursor-pointer select-none">GMIV 檢查</summary>
+            <ul id="gmivCheckList" class="mt-1.5 space-y-1 text-[11px] leading-relaxed"></ul>
+          </details>
         </div>
         <div class="flex items-center justify-between mt-3 pt-2 border-t border-[#181b26]">
           <div class="flex flex-wrap items-center gap-1.5">
@@ -2249,7 +2253,7 @@
             </button>
           </div>
           <div class="flex items-center gap-1.5" style="flex-shrink:0;white-space:nowrap;margin-left:8px">
-            <select id="styleCopyFormatSelect" onchange="setStyleCopyFormat(this.value)" aria-label="複製格式" title="完整描述（預設）：複製時把標籤寫成完整 Style，加入編曲配置與段落走向，最多 1,000 字元。分類句：只把標籤分組成短句。標籤串：原樣複製。三種都不會改動欄位內容。" class="bg-[#0b0d13] border border-[#30384e] text-gray-300 rounded-md px-1.5 py-1.5 text-xs outline-none"><option value="rich">完整描述</option><option value="sentences">分類句</option><option value="tags">標籤串</option></select>
+            <select id="styleCopyFormatSelect" onchange="setStyleCopyFormat(this.value)" aria-label="複製格式" title="完整描述（預設）：複製時把標籤寫成完整 Style，加入編曲配置與段落走向，最多 1,000 字元。分類句：只把標籤分組成短句。GMIV 公式：依 曲風→情緒＋BPM→樂器＋製作→人聲 排序，最後加開頭／推進／結尾走向句。標籤串：原樣複製。都不會改動欄位內容。" class="bg-[#0b0d13] border border-[#30384e] text-gray-300 rounded-md px-1.5 py-1.5 text-xs outline-none"><option value="rich">完整描述</option><option value="sentences">分類句</option><option value="gmiv">GMIV 公式</option><option value="tags">標籤串</option></select>
             <button onclick="copyElementText('styleInput')" class="text-xs px-2.5 py-1.5 rounded-md bg-[#161a26] hover:bg-[#202536] text-gray-300 transition">複製</button>
             <button onclick="clearSingleBox('styleInput')" class="text-xs px-2.5 py-1.5 rounded-md bg-[#161a26] hover:bg-[#202536] text-gray-400 hover:text-rose-400 transition">清空</button>
           </div>
@@ -2454,7 +2458,7 @@
     </div>
 
     <div class="mt-5 mb-2 px-4 py-3 rounded-xl border border-[#1e2335] bg-[#0e1119] text-[11px] text-gray-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.6.3 · Suno v6 Ready</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。 <a href="https://linktr.ee/zmlmusic" target="_blank" rel="noopener noreferrer" class="studio-gold hover:text-white">ZML MUSIC ↗</a></span>
+      <span><b class="text-gray-300">ZML Suno Prompt Studio v7.6.4 · Suno v6 Ready</b>｜免費創作工具；生成結果請以實際 Suno 測試為準。 <a href="https://linktr.ee/zmlmusic" target="_blank" rel="noopener noreferrer" class="studio-gold hover:text-white">ZML MUSIC ↗</a></span>
       <span>🔒 純前端版本：收藏、DNA、結構 Presets 與輪抽進度只儲存在你的瀏覽器 localStorage，不會上傳到 ZML 伺服器。</span>
     </div>
 
@@ -8485,7 +8489,7 @@
     }
 
     const STYLE_COPY_FORMAT_KEY = 'zml_style_copy_format_v76';
-    const STYLE_COPY_FORMATS = { rich:'完整描述', sentences:'分類句', tags:'標籤串' };
+    const STYLE_COPY_FORMATS = { rich:'完整描述', sentences:'分類句', gmiv:'GMIV 公式', tags:'標籤串' };
     let styleCopyFormatRuntime = null;
     function getStyleCopyFormat() {
       if (styleCopyFormatRuntime) return styleCopyFormatRuntime;
@@ -8591,6 +8595,7 @@
     function formatStyleForCopy(text, format) {
       if (format === 'rich') return styleTagsToRichDescription(text);
       if (format === 'sentences') return styleTagsToSentences(text);
+      if (format === 'gmiv') return styleTagsToGmiv(text);
       return String(text || '').trim();
     }
     function getStyleTextForCopy() {
@@ -8598,6 +8603,7 @@
     }
     function updateStyleCopyPreview() {
       const wrap = document.getElementById('styleCopyPreviewWrap'), box = document.getElementById('styleCopyPreview'), count = document.getElementById('styleCopyPreviewCount'), label = document.getElementById('styleCopyPreviewLabel');
+      updateGmivCheck();
       if (!wrap || !box) return;
       const format = getStyleCopyFormat(); const raw = styleInput.value.trim();
       if (format === 'tags' || !raw || looksLikeStyleProse(raw)) { wrap.style.display = 'none'; return; }
@@ -8605,6 +8611,133 @@
       wrap.style.display = 'block'; box.textContent = text;
       if (label) label.textContent = `按「複製」會送出這段（${STYLE_COPY_FORMATS[format]}）`;
       if (count) { count.textContent = `${text.length}/1000`; count.style.color = text.length > 1000 ? '#fb7185' : ''; }
+    }
+
+    // ===== v7.6.4 GMIV：Genre → Mood(+BPM) → Instruments(+2–4 製作詞) → Vocals → 開頭／推進／結尾走向句 =====
+    // Suno 越前面的詞權重越高，所以順序本身就是優先順序。只重排已選標籤，不新增標籤。
+    const GMIV_BPM_CHART = [
+      ['pop ballad',70,'58–94'],['lofi hip hop',75,'65–90'],['lo-fi hip hop',75,'65–90'],['soul',78,'60–122'],['reggae',80,'75–90'],['blues',84,'58–156'],
+      ['memphis phonk',85,'85–103'],['phonk',85,'85–103'],['gospel',88,'60–132'],['boom bap',90,'75–98'],['country',96,'59–154'],['funk',102,'72–128'],
+      ['tropical house',108,'98–118'],['synthwave',112,'68–144'],['classic rock',112,'68–150'],['synth pop',116,'70–138'],['synthpop',116,'70–138'],
+      ['disco',120,'97–130'],['deep house',122,'120–124'],['big room house',129,'127–132'],['house',122,'112–130'],['dance pop',125,'76–134'],['dance-pop',125,'76–134'],
+      ['hard rock',136,'65–156'],['psytrance',138,'124–148'],['trance',136,'126–145'],['uk drill',141,'138–144'],['drill',141,'138–144'],['trap',138,'75–148'],
+      ['dubstep',140,'132–155'],['future bass',142,'120–155'],['pop punk',158,'88–172'],['metalcore',160,'82–178'],['punk rock',165,'82–190'],
+      ['jungle',166,'160–174'],['happy hardcore',170,'162–178'],['thrash metal',172,'90–190'],['drum and bass',173,'166–178'],['drum & bass',173,'166–178'],
+      ['contemporary r&b',83,'63–104'],['r&b',83,'63–104'],['mainstream pop',114,'86–128'],['pop',114,'86–128']
+    ].sort((a, b) => b[0].length - a[0].length);
+    const GMIV_FILLER = ['velvet','neon','ethereal','shimmering','lush','soaring','haunting','pulsing','cascading','luminous','celestial','cosmic','mystical','whispering','echoing'];
+    const GMIV_FILLER_FIX = { lush:'thick layered warm synth pads', soaring:'high belted chorus melody', shimmering:'bright top-end sparkle', ethereal:'airy head-voice vocal, long reverb tail' };
+    const GMIV_LIVE_RE = /\b(live|arena|crowd|stadium|concert|audience|unplugged|cheering|applause|bootleg|radio session)\b/i;
+
+    function gmivDirectionSentences(raw) {
+      const arc = styleSectionArc(raw).map(x => { const i = x.indexOf(':'); return [x.slice(0, i).trim(), x.slice(i + 1).trim()]; }).filter(x => x[0] && x[1]);
+      if (!arc.length) return [];
+      const first = arc[0], last = arc.length > 1 ? arc[arc.length - 1] : null;
+      const inner = arc.slice(1, -1);
+      const mid = inner.find(x => /^(final )?(chorus|hook|drop)/i.test(x[0])) || inner.find(x => /chorus|hook|drop/i.test(x[0])) || (arc.length > 2 ? arc[Math.floor(arc.length / 2)] : null);
+      const out = [`${first[0]} opens with ${first[1]}.`];
+      if (mid) out.push(`${mid[0]} builds with ${mid[1]}.`);
+      if (last) out.push(`${last[0]} ends with ${last[1]}.`);
+      return out;
+    }
+    // 本站資料庫認不得的自訂詞會落在 other；GMIV 依字面再分一次：像曲風的放曲風、單一形容詞放情緒。
+    const GMIV_GENRE_WORD_RE = /\b(pop|rock|hip[- ]?hop|rap|trap|funk|fusion|jazz|soul|r&b|house|techno|trance|wave|core|metal|punk|folk|country|blues|reggae|edm|electronic|garage|drill|phonk|bossa|disco|ballad|ambient|lo-?fi|mandopop|k-?pop|j-?pop)\b/i;
+    const GMIV_INSTRUMENT_WORD_RE = /guitar|piano|bass|drum|synth|string|violin|cello|sax|trumpet|flute|organ|808|rhodes|percussion|phin|erhu|pipa|guzheng|suona|sitar|koto|shamisen|kalimba|marimba|harp|horn|pad|arp|kick|snare|hat|clap|bell|choir|vocal|voice/i;
+    function gmivParts(raw) {
+      const parts = stylePartsFromTagText(raw);
+      const rest = [];
+      parts.other.forEach(t => {
+        if (GMIV_INSTRUMENT_WORD_RE.test(t)) rest.push(t);
+        else if (GMIV_GENRE_WORD_RE.test(t) && t.split(/\s+/).length <= 4) parts.genres.push(t);
+        else if (/^[a-z][a-z-]*$/i.test(t)) parts.mood.push(t);
+        else rest.push(t);
+      });
+      parts.other = rest;
+      return parts;
+    }
+    function styleTagsToGmiv(text) {
+      const raw = String(text || '').trim();
+      if (!raw || looksLikeStyleProse(raw)) return raw;
+      const parts = gmivParts(raw);
+      let production = parts.production.slice(0, 4);
+      let dir = gmivDirectionSentences(raw);
+      const build = () => {
+        const tags = uniqText([...parts.genres, ...parts.mood, ...parts.tempo, ...parts.instruments, ...parts.arrangement, ...parts.harmony, ...parts.other, ...production, ...parts.vocal]);
+        return [tags.join(', ') + (tags.length ? '.' : ''), ...dir].filter(Boolean).join(' ');
+      };
+      let out = build();
+      while (out.length > 1000 && dir.length) { dir.pop(); out = build(); }
+      while (out.length > 1000 && production.length > 2) { production.pop(); out = build(); }
+      if (out.length > 1000) out = out.slice(0, 1000).replace(/[,\s]+[^,]*$/, '') + '.';
+      return out.trim();
+    }
+    function gmivBpmSuggestion(genres) {
+      const text = genres.join(' | ').toLowerCase();
+      for (const [g, bpm, range] of GMIV_BPM_CHART) if (text.includes(g)) return { genre: g, bpm, range };
+      return null;
+    }
+    function gmivAddBpm(bpm) {
+      const v = styleInput.value.trim();
+      if (/\b\d{2,3}\s*bpm\b/i.test(v)) { showToast('Style 裡已經有 BPM 了'); return; }
+      styleInput.value = v ? `${v.replace(/,\s*$/, '')}, ${bpm} BPM` : `${bpm} BPM`;
+      syncToComplete(); updateAllActiveTags(); updateAllCharCounts();
+      showToast(`已加入 ${bpm} BPM`);
+    }
+    function gmivChecks(raw) {
+      const tags = uniqText(String(raw || '').split(',').map(x => x.trim()).filter(Boolean));
+      const parts = gmivParts(raw);
+      const low = String(raw).toLowerCase();
+      const items = [];
+      const add = (ok, text, extra = '') => items.push({ ok, text, extra });
+      const genreLow = new Set(parts.genres.map(g => g.toLowerCase()));
+      if (!parts.genres.length) add(false, '找不到曲風標籤：GMIV 第一步是曲風，請加「大類＋子類」，例如 Hip Hop, Trap。');
+      else {
+        add(genreLow.has(String(tags[0] || '').toLowerCase()), genreLow.has(String(tags[0] || '').toLowerCase()) ? '曲風在最前面' : `第一個標籤「${tags[0]}」不是曲風；選「GMIV 公式」複製時會自動把曲風排到最前面。`);
+        if (parts.genres.length === 1) add(false, `只有一個曲風「${parts.genres[0]}」：建議寫成「大類＋子類」一對，例如 R&B, Alternative R&B。`);
+        else if (parts.genres.length > 3) add(false, `有 ${parts.genres.length} 個曲風：只留一個主曲風＋子曲風，其他曲風改成質感詞（例如 electronic synth textures），不然 Suno 會混成一團。`);
+        else add(true, `曲風成對：${parts.genres.slice(0, 3).join(', ')}`);
+      }
+      const bpm = low.match(/\b(\d{2,3})\s*bpm\b/);
+      if (bpm) add(true, `有 BPM（${bpm[1]}）；GMIV 公式會把它和情緒詞放在一起`);
+      else {
+        const sug = gmivBpmSuggestion(parts.genres);
+        add(false, sug ? `沒有 BPM：${sug.genre} 常見 ${sug.range}，建議先用 ${sug.bpm}。` : '沒有 BPM：寫一個數字（例如 92 BPM），放在情緒詞旁邊。', sug ? `<button type="button" onclick="gmivAddBpm(${sug.bpm})" class="ml-1 px-1.5 py-0.5 rounded bg-[#161a26] border border-[#30384e] text-gray-200">＋${sug.bpm} BPM</button>` : '');
+      }
+      if (parts.mood.length < 2) add(false, `情緒詞只有 ${parts.mood.length} 個：建議 3–6 個，例如 confident, playful, bold。`);
+      else add(true, `情緒詞 ${parts.mood.length} 個`);
+      if (!parts.instruments.length) add(false, '沒有樂器：寫出最能代表這首歌的 2–5 件樂器，最重要的放前面。');
+      if (!parts.vocal.length) add(false, '沒有人聲描述：寫音域＋質感＋唱法，例如 airy female lead, breathy delivery。（純音樂可忽略）');
+      if (parts.production.length > 4) add(false, `製作詞有 ${parts.production.length} 個：超過 4 個會互相稀釋；GMIV 公式只保留前 4 個。`);
+      const long = tags.filter(t => t.split(/\s+/).length > 5);
+      if (long.length) add(false, `標籤太長（超過 5 個字）：${long.slice(0, 3).join(' / ')}。標籤要是短名詞片語；兩個元素怎麼互動，寫進走向句。`);
+      if (!/\b(\d0s|\d{4}s|y2k|vintage|modern|retro|golden age|early digital|analog|lo-?fi cassette|hi-?fi)\b/i.test(low)) add(false, '沒有年代錨點：加一個年代或製作年代（例如 90s、2000s、vintage analog、modern），很便宜又很有效。');
+      else add(true, '有年代錨點');
+      const liveHits = tags.filter(t => GMIV_LIVE_RE.test(t));
+      if (liveHits.length) add(false, `現場錄音觸發詞：${liveHits.slice(0, 3).join(' / ')}。這些會讓歌聽起來像演唱會盜錄（觀眾聲、空間回音）；除非你要那種聲音，否則拿掉。`);
+      const acoustic = tags.filter(t => /\bacoustic\b(?!\s+guitar)/i.test(t));
+      if (acoustic.length) add(false, `「acoustic」陷阱：${acoustic.slice(0, 3).join(' / ')}。acoustic 會把木吉他拖進來（連 acoustic drums 也會）；鼓改寫 punchy drums / natural drum tone。`);
+      const filler = GMIV_FILLER.filter(w => new RegExp(`\\b${w}\\b`, 'i').test(low));
+      if (/\bcinematic\b/i.test(parts.mood.join(' '))) filler.push('cinematic（當情緒詞）');
+      if (filler.length) {
+        const fixes = filler.filter(w => GMIV_FILLER_FIX[w]).map(w => `${w} → ${GMIV_FILLER_FIX[w]}`);
+        add(false, `AI 空泛詞：${filler.join(', ')}。改成具體的聲音，不要換同義詞。${fixes.length ? '例：' + fixes.join('；') : ''}`);
+      }
+      if (!liveHits.length && !acoustic.length && !filler.length) add(true, '沒有現場錄音詞、acoustic 陷阱或 AI 空泛詞');
+      const ignored = String(lyricsInput?.value || '').match(/\[(filter|loop|mix|master|pan|volume|style)\s*:[^\]]*\]/ig);
+      if (ignored && ignored.length) add(false, `歌詞裡有 Suno 不會可靠執行的格式：${uniqText(ignored).slice(0, 3).join(' ')}。把字數留給真正的標籤。`);
+      return items;
+    }
+    function updateGmivCheck() {
+      const wrap = document.getElementById('gmivCheckWrap'), list = document.getElementById('gmivCheckList'), sum = document.getElementById('gmivCheckSummary');
+      if (!wrap || !list || !sum) return;
+      const raw = String(styleInput?.value || '').trim();
+      if (!raw || looksLikeStyleProse(raw)) { wrap.style.display = 'none'; return; }
+      const items = gmivChecks(raw);
+      const warn = items.filter(x => !x.ok).length, ok = items.length - warn;
+      wrap.style.display = 'block';
+      sum.innerHTML = `GMIV 檢查：<span class="text-emerald-300">✓ ${ok}</span>　<span class="${warn ? 'text-amber-300' : 'text-gray-500'}">⚠ ${warn}</span>${warn ? '<span class="text-gray-500">（點開看建議）</span>' : ''}`;
+      const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+      list.innerHTML = [...items.filter(x => !x.ok), ...items.filter(x => x.ok)].map(x => `<li class="${x.ok ? 'text-gray-500' : 'text-amber-200'}">${x.ok ? '✓' : '⚠'} ${esc(x.text)}${x.extra || ''}</li>`).join('');
     }
 
     function generateSmartExclude(styleText, lyricsText = '') {
